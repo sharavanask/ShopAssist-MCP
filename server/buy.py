@@ -9,6 +9,10 @@ HF_API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B
 HEADERS = {"Authorization": f"Bearer {HF_API_TOKEN}"}
 
 print("decision_agent loaded")
+
+
+
+### Option 1 Hugging face model 
 async def decision_agent(top3_products_summary, user_input,specific_features):
     prompt = f"""
     You are an expert product advisor AI. Your job is to select the single best product for a Small or Medium Enterprise from the following Amazon product shortlist:
@@ -54,6 +58,64 @@ async def decision_agent(top3_products_summary, user_input,specific_features):
         return gen.strip()
     else:
         return e
+
+##Option 2 Groq developer API 
+
+GROQ_API_KEY = "*****************************"  
+GROQ_BASE_URL = "https://api.groq.com/openai/v1"
+MODEL_NAME = "meta-llama/llama-4-scout-17b-16e-instruct"  
+
+async def decision_agent(top3_products_summary, user_input, specific_features):
+    prompt = f"""
+You are an expert product advisor AI. Your job is to select the single best product for a Small or Medium Enterprise from the following Amazon product shortlist:
+
+{top3_products_summary}
+
+User requirements:
+- Product: {user_input}
+- Features: {specific_features}
+- Budget: Please consider the user's specified price range if available.
+
+Instructions:
+- Carefully match ALL required features and preferences with product specifications.
+- Prioritize products that meet all requirements and fall within the user needs that has been specified above.
+- Consider user needs: value for money, reliability, seller reputation, and service support of the brand too.
+- If no product is a perfect match, pick the closest and clearly state any compromises.
+
+Output format:
+<Product Title>
+
+Justification: (5-8 lines explaining why this is the best choice, referencing features, price, and user fit)
+Pros: 3 lines
+Cons: 3 lines
+"""
+
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": MODEL_NAME,
+        "messages": [
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.7,
+        "max_tokens": 512
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            res = await client.post(f"{GROQ_BASE_URL}/chat/completions", headers=headers, json=payload)
+            res.raise_for_status()
+            data = res.json()
+            return data["choices"][0]["message"]["content"].strip()
+    except httpx.HTTPStatusError as e:
+        return f"HTTP Error: {e.response.status_code} - {e.response.text}"
+    except httpx.RequestError as e:
+        return f"Request Error: {str(e)}"
+
+
     
 
 def summarize_product(product):
