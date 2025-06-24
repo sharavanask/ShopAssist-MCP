@@ -74,7 +74,7 @@ You are an expert product advisor AI. Your job is to select the single best prod
 User requirements:
 - Product: {user_input}
 - Features: {specific_features}
-- Budget: Please consider the user's specified price range if available.
+- price to product quality mapping.
 
 Instructions:
 - Carefully match ALL required features and preferences with product specifications.
