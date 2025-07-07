@@ -1,6 +1,6 @@
 # Amazon Product Search MCP Server
 
-The site is live here ! : https://shopassist-zb44.onrender.com
+The site is live here ! : https://shopassist-sharavana.streamlit.app/
 
 An MCP (Model Context Protocol) server that provides AI-powered Amazon product search and recommendations using FastMCP.
 
